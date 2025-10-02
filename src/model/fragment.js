@@ -108,7 +108,24 @@ class Fragment {
    * @returns {boolean} true if we support this Content-Type (i.e., type/subtype)
    */
   static isSupportedType(value) {
-    // TODO
+    let acceptedTypes = ["text/plain",
+      "text/plain; charset=utf-8",
+      //For later development
+      /*
+      "text/markdown",
+      "text/html",
+      "text/csv",
+      "application/json",
+      "application/yaml",
+      "image/png",
+      "image/jpeg",
+      "image/webp",
+      "image/avif",
+      "image/gif",
+      */
+    ]
+
+    return acceptedTypes.includes(value);
   }
 }
 
