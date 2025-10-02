@@ -15,7 +15,7 @@ const {
 } = require('./data');
 
 class Fragment {
-  constructor({ id = crypto.randomUUID(), ownerId, created = new Date(), updated = new Date(), type, size = 0 }) {
+  constructor({ id = crypto.randomUUID(), ownerId, created = new Date().toISOString(), updated = new Date().toISOString(), type, size = 0 }) {
     if (!ownerId || !type) {
       throw new Error(`
         ownerId, and type are required. Received ownerId: ${ownerId}, and type: ${type}`);
@@ -48,7 +48,14 @@ class Fragment {
    * @returns Promise<Array<Fragment>>
    */
   static async byUser(ownerId, expand = false) {
-    // TODO
+    if (!ownerId || typeof (ownerId) != "string") {
+      throw new Error(`Invalid ownerId. Received ownerId: ${ownerId}`)
+    }
+    if (expand) {
+      let result = await listFragments(ownerId, expand)
+      return result.map((serializedObject) => new Fragment(JSON.parse(serializedObject)));
+    }
+    return await listFragments(ownerId, expand);
   }
 
   /**
@@ -58,8 +65,11 @@ class Fragment {
    * @returns Promise<Fragment>
    */
   static async byId(ownerId, id) {
-    // TODO
-    // TIP: make sure you properly re-create a full Fragment instance after getting from db.
+    if (!ownerId || typeof (ownerId) != "string" || !id) {
+      throw new Error(`Invalid ownerId. Received ownerId: ${ownerId}, id: ${id}`)
+    }
+    const result = await readFragment(ownerId, id);
+    return new Fragment(result)
   }
 
   /**
@@ -68,16 +78,25 @@ class Fragment {
    * @param {string} id fragment's id
    * @returns Promise<void>
    */
-  static delete(ownerId, id) {
-    // TODO
+  static async delete(ownerId, id) {
+    if (!ownerId || typeof (ownerId) != "string" || !id) {
+      throw new Error(`Invalid ownerId. Received ownerId: ${ownerId}, id: ${id}`)
+    }
+    return await deleteFragment(ownerId, id);
   }
 
   /**
    * Saves the current fragment (metadata) to the database
    * @returns Promise<void>
    */
-  save() {
-    // TODO
+  async save() {
+    if (!this.id || !this.ownerId || !this.created || !this.updated || !this.type || this.size < 0) {
+      throw new Error(`Missing fragment details. Received id: ${this.id},
+         ownerId: ${this.ownerId}, created: ${this.created}, updated: ${this.updated},
+         type: ${this.type}, size: ${this.size}`);
+    }
+    this.updated = new Date().toISOString();
+    return await writeFragment(this);
   }
 
   /**
@@ -85,7 +104,7 @@ class Fragment {
    * @returns Promise<Buffer>
    */
   getData() {
-    // TODO
+    return readFragmentData(this.ownerId, this.id);
   }
 
   /**
@@ -94,8 +113,14 @@ class Fragment {
    * @returns Promise<void>
    */
   async setData(data) {
-    // TODO
-    // TIP: make sure you update the metadata whenever you change the data, so they match
+    if (!data) {
+      throw new Error(`
+        Invalid/no data. Received data: ${data}`);
+    }
+    this.size = data.length;
+    this.updated = new Date().toISOString();
+    await writeFragment(this);
+    return await writeFragmentData(this.ownerId, this.id, data);
   }
 
   /**
@@ -121,7 +146,14 @@ class Fragment {
    * @returns {Array<string>} list of supported mime types
    */
   get formats() {
-    // TODO
+    let convertibleTypes = [];
+    switch (this.mimeType) {
+      case "text/plain":
+        convertibleTypes.push("text/plain");
+        break;
+      default: break;
+    }
+    return convertibleTypes;
   }
 
   /**
