@@ -15,7 +15,7 @@ const {
 } = require('./data');
 
 class Fragment {
-  constructor({ id = crypto.randomUUID(), ownerId, created = new Date().toISOString(), updated = new Date().toISOString(), type, size = 0 }) {
+  constructor({ id = randomUUID(), ownerId, created = new Date().toISOString(), updated = new Date().toISOString(), type, size = 0 }) {
     if (!ownerId || !type) {
       throw new Error(`
         ownerId, and type are required. Received ownerId: ${ownerId}, and type: ${type}`);
