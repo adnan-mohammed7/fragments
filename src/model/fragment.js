@@ -15,8 +15,30 @@ const {
 } = require('./data');
 
 class Fragment {
-  constructor({ id, ownerId, created, updated, type, size = 0 }) {
-    // TODO
+  constructor({ id = crypto.randomUUID(), ownerId, created = new Date(), updated = new Date(), type, size = 0 }) {
+    if (!ownerId || !type) {
+      throw new Error(`
+        ownerId, and type are required. Received ownerId: ${ownerId}, and type: ${type}`);
+    }
+    if (!Fragment.isSupportedType(type)) {
+      throw new Error(`
+        Invalid type. Received type: ${type}`);
+    }
+    if (typeof (size) != "number" || isNaN(size)) {
+      throw new Error(`
+        Invalid size. Received size: ${size}`);
+    }
+    if (size < 0) {
+      throw new Error(`
+        size cannot be less than 0. Received size: ${size}`);
+    }
+
+    this.id = id;
+    this.ownerId = ownerId;
+    this.created = created;
+    this.updated = updated;
+    this.type = type;
+    this.size = size;
   }
 
   /**
@@ -91,7 +113,7 @@ class Fragment {
    * @returns {boolean} true if fragment's type is text/*
    */
   get isText() {
-    // TODO
+    return this.mimeType.includes("text")
   }
 
   /**
@@ -112,16 +134,15 @@ class Fragment {
       "text/plain; charset=utf-8",
       //For later development
       /*
-      "text/markdown",
-      "text/html",
-      "text/csv",
-      "application/json",
-      "application/yaml",
-      "image/png",
-      "image/jpeg",
-      "image/webp",
-      "image/avif",
-      "image/gif",
+      Currently, only text/plain is supported. Others will be added later.
+
+      `text/markdown`,
+      `text/html`,
+      `application/json`,
+      `image/png`,
+      `image/jpeg`,
+      `image/webp`,
+      `image/gif`,
       */
     ]
 
