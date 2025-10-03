@@ -4,6 +4,11 @@ const hash = require("../../hash");
 const logger = require("../../logger");
 
 module.exports = async (req, res) => {
+  if (!Fragment.isSupportedType(req.headers["content-type"])) {
+    logger.warn("Content type not supported");
+    return res.status(415).json(createErrorResponse(415, `Invalid content-type. Received content type: ${req.headers["content-type"]}`));
+  }
+
   if (!Buffer.isBuffer(req.body)) {
     logger.warn("Request body is not a buffer");
     return res.status(400).json(createErrorResponse(400, 'Request body must be a buffer'));
