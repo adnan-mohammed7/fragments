@@ -69,6 +69,9 @@ class Fragment {
       throw new Error(`Invalid ownerId. Received ownerId: ${ownerId}, id: ${id}`)
     }
     const result = await readFragment(ownerId, id);
+    if (!result) {
+      throw new Error(`Invalid fragmentId. Received id: ${id}`)
+    }
     return new Fragment(result)
   }
 
