@@ -21,13 +21,9 @@ module.exports = async (req, res) => {
 
     try {
       fragment = await Fragment.byId(hashedEmail, id);
-      if (!fragment) {
-        logger.warn({ user: hashedEmail, fragmentId: id }, 'Fragment not found');
-        return res.status(404).json(createErrorResponse(404, `Fragment with id ${id} not found`));
-      }
     } catch (err) {
-      logger.error({ err, user: hashedEmail, fragmentId: id }, 'Error fetching fragment metadata');
-      return res.status(500).json(createErrorResponse(500, 'Error fetching fragment metadata'));
+      logger.warn({ err, user: hashedEmail, fragmentId: id }, 'Fragment not found');
+      return res.status(404).json(createErrorResponse(404, `Fragment with id ${id} not found`));
     }
 
     try {
