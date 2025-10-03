@@ -43,7 +43,6 @@ describe('GET /v1/fragments', () => {
 
     const res = await request(app).get(`/v1/fragments/${postRes.body.fragment.id}`).auth('user1@email.com', 'password1');
 
-    console.log(res.body)
     expect(res.statusCode).toBe(200);
     expect(res.text).toBe(fragmentData)
   });
@@ -59,7 +58,6 @@ describe('GET /v1/fragments', () => {
 
     const res = await request(app).get(`/v1/fragments/${postRes.body.fragment.id}65666`).auth('user1@email.com', 'password1');
 
-    console.log(res.body)
     expect(res.statusCode).toBe(404);
   });
 
