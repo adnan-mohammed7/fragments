@@ -49,7 +49,6 @@ module.exports = async (req, res) => {
 
     res.status(201)
       .set('Location', fragmentUrl)
-      .set('Content-Type', fragment.type)
       .json(createSuccessResponse({ fragment }));
 
   } catch (err) {
