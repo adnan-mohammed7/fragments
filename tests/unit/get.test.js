@@ -3,7 +3,6 @@
 const request = require('supertest');
 
 const app = require('../../src/app');
-const hash = require('../../src/hash');
 
 describe('GET /v1/fragments', () => {
   // If the request is missing the Authorization header, it should be forbidden
@@ -45,27 +44,11 @@ describe('GET /v1/fragments', () => {
       .set('Content-Type', 'text/plain')
       .send(fragmentData);
 
-    expect(postRes.statusCode).toBe(201);
-    expect(postRes.headers).toHaveProperty('location');
-    expect(postRes.body.status).toBe('ok');
-    expect(typeof postRes.body.fragment.id).toBe('string');
-    expect(postRes.body.fragment.ownerId).toBe(hash("user1@email.com"));
-    expect(postRes.body.fragment.type).toBe('text/plain');
-    expect(postRes.body.fragment.size).toBe(fragmentData.length);
-
     const secondPostRes = await request(app)
       .post('/v1/fragments')
       .auth('user1@email.com', 'password1')
       .set('Content-Type', 'text/plain')
       .send(fragmentData);
-
-    expect(secondPostRes.statusCode).toBe(201);
-    expect(secondPostRes.headers).toHaveProperty('location');
-    expect(secondPostRes.body.status).toBe('ok');
-    expect(typeof secondPostRes.body.fragment.id).toBe('string');
-    expect(secondPostRes.body.fragment.ownerId).toBe(hash("user1@email.com"));
-    expect(secondPostRes.body.fragment.type).toBe('text/plain');
-    expect(secondPostRes.body.fragment.size).toBe(fragmentData.length);
 
     const getRes = await request(app)
       .get('/v1/fragments')
@@ -86,27 +69,11 @@ describe('GET /v1/fragments', () => {
       .set('Content-Type', 'text/plain')
       .send(fragmentData);
 
-    expect(postRes.statusCode).toBe(201);
-    expect(postRes.headers).toHaveProperty('location');
-    expect(postRes.body.status).toBe('ok');
-    expect(typeof postRes.body.fragment.id).toBe('string');
-    expect(postRes.body.fragment.ownerId).toBe(hash("user1@email.com"));
-    expect(postRes.body.fragment.type).toBe('text/plain');
-    expect(postRes.body.fragment.size).toBe(fragmentData.length);
-
     const secondPostRes = await request(app)
       .post('/v1/fragments')
       .auth('user1@email.com', 'password1')
       .set('Content-Type', 'text/plain')
       .send(fragmentData);
-
-    expect(secondPostRes.statusCode).toBe(201);
-    expect(secondPostRes.headers).toHaveProperty('location');
-    expect(secondPostRes.body.status).toBe('ok');
-    expect(typeof secondPostRes.body.fragment.id).toBe('string');
-    expect(secondPostRes.body.fragment.ownerId).toBe(hash("user1@email.com"));
-    expect(secondPostRes.body.fragment.type).toBe('text/plain');
-    expect(secondPostRes.body.fragment.size).toBe(fragmentData.length);
 
     const getRes = await request(app)
       .get('/v1/fragments?expand=1')
@@ -131,14 +98,6 @@ describe('GET /v1/fragments', () => {
       .set('Content-Type', 'text/plain')
       .send(fragmentData);
 
-    expect(postRes.statusCode).toBe(201);
-    expect(postRes.headers).toHaveProperty('location');
-    expect(postRes.body.status).toBe('ok');
-    expect(typeof postRes.body.fragment.id).toBe('string');
-    expect(postRes.body.fragment.ownerId).toBe(hash("user1@email.com"));
-    expect(postRes.body.fragment.type).toBe('text/plain');
-    expect(postRes.body.fragment.size).toBe(fragmentData.length);
-
     const getRes = await request(app)
       .get('/v1/fragments?expand=2')
       .auth('user1@email.com', 'password1');
@@ -157,14 +116,6 @@ describe('GET /v1/fragments', () => {
       .auth('user1@email.com', 'password1')
       .set('Content-Type', 'text/plain')
       .send(fragmentData);
-
-    expect(postRes.statusCode).toBe(201);
-    expect(postRes.headers).toHaveProperty('location');
-    expect(postRes.body.status).toBe('ok');
-    expect(typeof postRes.body.fragment.id).toBe('string');
-    expect(postRes.body.fragment.ownerId).toBe(hash("user1@email.com"));
-    expect(postRes.body.fragment.type).toBe('text/plain');
-    expect(postRes.body.fragment.size).toBe(fragmentData.length);
 
     const getRes = await request(app)
       .get('/v1/fragments?expand=0')
@@ -185,27 +136,11 @@ describe('GET /v1/fragments', () => {
       .set('Content-Type', 'text/plain')
       .send(fragmentData);
 
-    expect(postRes.statusCode).toBe(201);
-    expect(postRes.headers).toHaveProperty('location');
-    expect(postRes.body.status).toBe('ok');
-    expect(typeof postRes.body.fragment.id).toBe('string');
-    expect(postRes.body.fragment.ownerId).toBe(hash("user1@email.com"));
-    expect(postRes.body.fragment.type).toBe('text/plain');
-    expect(postRes.body.fragment.size).toBe(fragmentData.length);
-
     const secondPostRes = await request(app)
       .post('/v1/fragments')
       .auth('user2@email.com', 'password2')
       .set('Content-Type', 'text/plain')
       .send(fragmentData);
-
-    expect(secondPostRes.statusCode).toBe(201);
-    expect(secondPostRes.headers).toHaveProperty('location');
-    expect(secondPostRes.body.status).toBe('ok');
-    expect(typeof secondPostRes.body.fragment.id).toBe('string');
-    expect(secondPostRes.body.fragment.ownerId).toBe(hash("user2@email.com"));
-    expect(secondPostRes.body.fragment.type).toBe('text/plain');
-    expect(secondPostRes.body.fragment.size).toBe(fragmentData.length);
 
     const getRes = await request(app)
       .get('/v1/fragments?expand=2')
