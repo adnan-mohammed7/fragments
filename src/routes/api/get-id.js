@@ -28,10 +28,6 @@ module.exports = async (req, res) => {
 
     try {
       data = await fragment.getData();
-      if (!data) {
-        logger.warn({ user: hashedEmail, fragmentId: id }, 'Fragment data not found');
-        return res.status(404).json(createErrorResponse(404, `Fragment data for id ${id} not found`));
-      }
     } catch (err) {
       logger.error({ err, user: hashedEmail, fragmentId: id }, 'Error fetching fragment data');
       return res.status(500).json(createErrorResponse(500, 'Error fetching fragment data'));
