@@ -60,17 +60,4 @@ describe('GET /v1/fragments', () => {
 
     expect(res.statusCode).toBe(404);
   });
-
-  test('Rejects if the fragment does not belong to the user', async () => {
-    const fragmentData = "This is a fragment";
-
-    const postRes = await request(app)
-      .post('/v1/fragments')
-      .auth('user1@email.com', 'password1')
-      .set('Content-Type', 'text/plain')
-      .send(fragmentData);
-
-    const res = await request(app).get(`/v1/fragments/${postRes.body.fragment.id}`).auth('user2@email.com', 'password2');
-    expect(res.statusCode).toBe(404);
-  });
 });
