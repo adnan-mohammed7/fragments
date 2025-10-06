@@ -70,4 +70,14 @@ describe('POST /v1/fragments', () => {
     expect(postRes.body.error.code).toBe(415);
     expect(postRes.body.error.message).toBe('Invalid content-type. Received content type: video/mp4');
   });
+
+  test('No data throws an error', async () => {
+    const postRes = await request(app)
+      .post('/v1/fragments')
+      .auth('user1@email.com', 'password1')
+      .set('Content-Type', 'text/plain')
+
+    expect(postRes.statusCode).toBe(400);
+  });
+
 });

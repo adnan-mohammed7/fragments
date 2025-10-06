@@ -9,9 +9,9 @@ module.exports = async (req, res) => {
     return res.status(415).json(createErrorResponse(415, `Invalid content-type. Received content type: ${req.headers["content-type"]}`));
   }
 
-  if (!Buffer.isBuffer(req.body)) {
-    logger.warn("Request body is not a buffer");
-    return res.status(400).json(createErrorResponse(400, 'Request body must be a buffer'));
+  if (!Buffer.isBuffer(req.body) || req.body.length === 0) {
+    logger.warn("Request body must be a non-empty buffer");
+    return res.status(400).json(createErrorResponse(400, 'Request body must be a non-empty buffer'));
   }
 
   let fragment = null;
@@ -31,19 +31,8 @@ module.exports = async (req, res) => {
       return res.status(400).json(createErrorResponse(400, `Error creating Fragment instance`));
     }
 
-    try {
-      await fragment.save();
-    } catch (err) {
-      logger.error({ err, fragmentId: fragment.id }, 'Error saving fragment metadata');
-      return res.status(500).json(createErrorResponse(500, 'Failed to save fragment metadata'));
-    }
-
-    try {
-      await fragment.setData(req.body);
-    } catch (err) {
-      logger.error({ err, fragmentId: fragment.id }, 'Error saving fragment data');
-      return res.status(500).json(createErrorResponse(500, 'Failed to save fragment data'));
-    }
+    await fragment.save();
+    await fragment.setData(req.body);
 
     logger.info("Fragment instance saved in DB");
 
