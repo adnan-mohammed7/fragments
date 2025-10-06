@@ -70,7 +70,7 @@ describe('GET /v1/fragments', () => {
       .set('Content-Type', 'text/plain')
       .send(fragmentData);
 
-    const res = await request(app).get(`/v1/fragments/${postRes.body.fragment.id}65666`).auth('user2@email.com', 'password2');
+    const res = await request(app).get(`/v1/fragments/${postRes.body.fragment.id}`).auth('user2@email.com', 'password2');
     expect(res.statusCode).toBe(404);
   });
 });
