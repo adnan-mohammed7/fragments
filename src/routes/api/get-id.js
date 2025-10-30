@@ -46,10 +46,9 @@ module.exports = async (req, res) => {
       const result = md.render(dataString);
       logger.info({ user: hashedEmail, fragmentId: id }, 'Converted markdown fragment to HTML');
       res.status(200).set('Content-Type', 'text/html').send(result);
-      return;
     } else {
       logger.warn({ user: hashedEmail, fragmentId: id, mimeType: fragment.mimeType }, 'Cannot convert fragment type to HTML');
-      return res.status(415).json(createErrorResponse(415, `Cannot convert fragment type ${fragment.mimeType} to HTML`));
+      res.status(415).json(createErrorResponse(415, `Cannot convert fragment type ${fragment.mimeType} to HTML`));
     }
   }
 
