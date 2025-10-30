@@ -168,12 +168,11 @@ class Fragment {
     let acceptedTypes = ["text/plain",
       "text/plain; charset=utf-8",
       "application/json",
-      //For later development
-      /*
-      Currently, only text/plain is supported. Others will be added later.
-
       `text/markdown`,
       `text/html`,
+      //For later development
+      /*
+      Currently, the above formats are supported. Others will be added later.
       `image/png`,
       `image/jpeg`,
       `image/webp`,
