@@ -80,4 +80,33 @@ describe('POST /v1/fragments', () => {
     expect(postRes.statusCode).toBe(400);
   });
 
+  test('accepts text/plain with charset=utf-8 and returns correct size', async () => {
+    const textData = "Hello, world!";
+    const contentTypeHeader = 'text/plain; charset=utf-8';
+    const postRes = await request(app)
+      .post('/v1/fragments')
+      .auth('user1@email.com', 'password1')
+      .set('Content-Type', contentTypeHeader)
+      .send(textData);
+
+    expect(postRes.statusCode).toBe(201);
+    expect(postRes.body.status).toBe('ok');
+    expect(postRes.body.fragment.type).toBe(contentTypeHeader);
+    expect(postRes.body.fragment.size).toBe(Buffer.byteLength(textData));
+  });
+
+  test('accepts application/json fragment and returns correct size', async () => {
+    const jsonData = JSON.stringify({ name: "Adnan" });
+    const postRes = await request(app)
+      .post('/v1/fragments')
+      .auth('user1@email.com', 'password1')
+      .set('Content-Type', 'application/json')
+      .send(jsonData);
+
+    expect(postRes.statusCode).toBe(201);
+    expect(postRes.body.status).toBe('ok');
+    expect(postRes.body.fragment.type).toBe('application/json');
+    expect(postRes.body.fragment.size).toBe(Buffer.byteLength(jsonData));
+  });
+
 });
