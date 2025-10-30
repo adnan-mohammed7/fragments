@@ -76,7 +76,7 @@ describe('GET /v1/fragments', () => {
       .auth('user1@email.com', 'password1');
 
     expect(res.statusCode).toBe(200);
-    expect(res.headers['content-type']).toMatch(/text\/html/);
+    expect(res.headers['content-type']).toMatch("text/html");
     expect(res.text).toContain('<p>This is a text/markdown fragment.</p>');
   });
 
@@ -114,5 +114,4 @@ describe('GET /v1/fragments', () => {
     expect(res.statusCode).toBe(415);
     expect(res.body.status).toBe('error');
   });
-
 });
