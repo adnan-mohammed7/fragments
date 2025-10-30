@@ -4,6 +4,8 @@ const hash = require("../../hash");
 const logger = require("../../logger");
 const { Fragment } = require("../../model/fragment");
 const { createErrorResponse } = require("../../response");
+const MarkdownIt = require('markdown-it');
+const md = new MarkdownIt();
 
 /**
  * Get a fragment by id for the current authenticated user
@@ -15,6 +17,7 @@ module.exports = async (req, res) => {
   const hashedEmail = hash(req.user);
   let data = null;
   let fragment = null;
+  const acceptedExtensions = ['', '.html'];
 
   logger.info({ fragmentId: id }, 'Fetching fragment by id');
 
@@ -30,6 +33,24 @@ module.exports = async (req, res) => {
   } catch (err) {
     logger.error({ err, user: hashedEmail, fragmentId: id }, 'Error fetching fragment data');
     return res.status(500).json(createErrorResponse(500, 'Error fetching fragment data'));
+  }
+
+  if (!acceptedExtensions.includes(ext)) {
+    logger.warn({ ext, user: hashedEmail, fragmentId: id }, `Unsupported extension requested`);
+    return res.status(415).json(createErrorResponse(415, `Unsupported extension: ${ext}`));
+  }
+
+  if (ext == '.html') {
+    if (fragment.mimeType == 'text/markdown') {
+      const dataString = data.toString('utf8');
+      const result = md.render(dataString);
+      logger.info({ user: hashedEmail, fragmentId: id }, 'Converted markdown fragment to HTML');
+      res.status(200).set('Content-Type', 'text/html').send(result);
+      return;
+    } else {
+      logger.warn({ user: hashedEmail, fragmentId: id, mimeType: fragment.mimeType }, 'Cannot convert fragment type to HTML');
+      return res.status(415).json(createErrorResponse(415, `Cannot convert fragment type ${fragment.mimeType} to HTML`));
+    }
   }
 
   logger.debug({ user: hashedEmail, fragmentId: id }, 'fragment data retrieved');
