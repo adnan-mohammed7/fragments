@@ -6,6 +6,7 @@ const express = require('express');
 const { version, author } = require('../../package.json');
 const { authenticate } = require('../auth');
 const { createSuccessResponse } = require('../response');
+const { hostname } = require('os');
 
 
 
@@ -31,6 +32,7 @@ router.get('/', (req, res) => {
       // Use your own GitHub URL for this!
       githubUrl: 'https://github.com/adnan-mohammed7/fragments',
       version,
+      hostname: hostname(),
     }));
 });
 
