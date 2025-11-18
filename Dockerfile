@@ -38,11 +38,8 @@ FROM node:22.9.0-alpine@sha256:c9bb43423a6229aeddf3d16ae6aaa0ff71a0b2951ce18ec8f
 
 WORKDIR /app
 
-# Copy built application and dependencies from builder stage and change ownership to node user
-COPY --chown=node:node --from=build /app /app
-
-# Switch to non-root user
-USER node
+# Copy built application and dependencies from builder stage
+COPY --from=build /app /app
 
 # Start the container by running our server
 CMD ["npm", "start"]
@@ -52,4 +49,4 @@ EXPOSE 8080
 
 # Health check
 HEALTHCHECK --interval=15s --timeout=30s --start-period=10s --retries=3 \
-  CMD wget http://localhost:8080/ || exit 1
+  CMD wget http://localhost:${PORT}/ || exit 1
