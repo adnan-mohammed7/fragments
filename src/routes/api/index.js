@@ -49,4 +49,7 @@ const rawBody = () =>
 // You can use Buffer.isBuffer(req.body) to test if it was parsed by the raw body parser.
 router.post('/fragments', rawBody(), require('./post'));
 
+//To delete a fragment using fragment ID
+router.delete('/fragments/:id', require('./delete-id'));
+
 module.exports = router;
