@@ -53,7 +53,11 @@ class Fragment {
     }
     if (expand) {
       let result = await listFragments(ownerId, expand)
-      return result.map((serializedObject) => new Fragment(JSON.parse(serializedObject)));
+      if (process.env.AWS_REGION) {
+        return result.map((fragmentObj) => new Fragment(fragmentObj));
+      } else {
+        return result.map((serializedObject) => new Fragment(JSON.parse(serializedObject)));
+      }
     }
     return await listFragments(ownerId, expand);
   }
