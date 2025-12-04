@@ -21,6 +21,6 @@ module.exports = async (req, res) => {
     }
   } catch (err) {
     logger.error({ err }, `Error Finding Fragment with ID: ${id}`);
-    return res.status(500).json(createErrorResponse(404, `Fragment with ID: ${id} not found`));
+    return res.status(404).json(createErrorResponse(404, `Fragment with ID: ${id} not found`));
   }
 };
