@@ -52,4 +52,7 @@ router.post('/fragments', rawBody(), require('./post'));
 //To delete a fragment using fragment ID
 router.delete('/fragments/:id', require('./delete-id'));
 
+//To update an existing fragment
+router.put('/fragments/:id', rawBody(), require('./put-id'));
+
 module.exports = router;
