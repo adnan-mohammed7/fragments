@@ -174,14 +174,13 @@ class Fragment {
       "application/json",
       `text/markdown`,
       `text/html`,
-      //For later development
-      /*
-      Currently, the above formats are supported. Others will be added later.
+      `text/csv`,
+      `application/yaml`,
       `image/png`,
       `image/jpeg`,
       `image/webp`,
+      `image/avif`,
       `image/gif`,
-      */
     ]
 
     return acceptedTypes.includes(value);
