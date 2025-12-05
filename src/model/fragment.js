@@ -153,14 +153,21 @@ class Fragment {
    * @returns {Array<string>} list of supported mime types
    */
   get formats() {
-    let convertibleTypes = [];
-    switch (this.mimeType) {
-      case "text/plain":
-        convertibleTypes.push("text/plain");
-        break;
-      default: break;
-    }
-    return convertibleTypes;
+    const conversions = {
+      'text/plain': ['text/plain'],
+      'text/markdown': ['text/markdown', 'text/html', 'text/plain'],
+      'text/html': ['text/html', 'text/plain'],
+      'text/csv': ['text/csv', 'text/plain', 'application/json'],
+      'application/json': ['application/json', 'application/yaml', 'text/plain'],
+      'application/yaml': ['application/yaml', 'text/plain'],
+      'image/png': ['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/avif'],
+      'image/jpeg': ['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/avif'],
+      'image/webp': ['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/avif'],
+      'image/avif': ['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/avif'],
+      'image/gif': ['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/avif']
+    };
+
+    return conversions[this.mimeType] || [];
   }
 
   /**

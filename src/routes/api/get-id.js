@@ -6,6 +6,8 @@ const { Fragment } = require("../../model/fragment");
 const { createErrorResponse } = require("../../response");
 const MarkdownIt = require('markdown-it');
 const md = new MarkdownIt();
+const sharp = require('sharp');
+const yaml = require('js-yaml');
 
 /**
  * Get a fragment by id for the current authenticated user
@@ -17,7 +19,21 @@ module.exports = async (req, res) => {
   const hashedEmail = hash(req.user);
   let data = null;
   let fragment = null;
-  const acceptedExtensions = ['', '.html'];
+
+  const contentTypeMap = {
+    '.txt': 'text/plain',
+    '.md': 'text/markdown',
+    '.html': 'text/html',
+    '.csv': 'text/csv',
+    '.json': 'application/json',
+    '.yaml': 'application/yaml',
+    '.yml': 'application/yaml',
+    '.png': 'image/png',
+    '.jpg': 'image/jpeg',
+    '.webp': 'image/webp',
+    '.gif': 'image/gif',
+    '.avif': 'image/avif'
+  };
 
   logger.info({ fragmentId: id }, 'Fetching fragment by id');
 
@@ -35,23 +51,105 @@ module.exports = async (req, res) => {
     return res.status(500).json(createErrorResponse(500, 'Error fetching fragment data'));
   }
 
-  if (!acceptedExtensions.includes(ext)) {
-    logger.warn({ ext, user: hashedEmail, fragmentId: id }, `Unsupported extension requested`);
-    return res.status(415).json(createErrorResponse(415, `Unsupported extension: ${ext}`));
+  if (!ext) {
+    logger.debug({ user: hashedEmail, fragmentId: id }, 'fragment data retrieved');
+    return res.status(200).set('Content-Type', fragment.mimeType).send(data);
   }
 
-  if (ext == '.html') {
-    if (fragment.mimeType == 'text/markdown') {
-      const dataString = data.toString('utf8');
-      const result = md.render(dataString);
-      logger.info({ user: hashedEmail, fragmentId: id }, 'Converted markdown fragment to HTML');
-      res.status(200).set('Content-Type', 'text/html').send(result);
-    } else {
-      logger.warn({ user: hashedEmail, fragmentId: id, mimeType: fragment.mimeType }, 'Cannot convert fragment type to HTML');
-      res.status(415).json(createErrorResponse(415, `Cannot convert fragment type ${fragment.mimeType} to HTML`));
+  const targetExt = ext.toLowerCase();
+  const targetType = contentTypeMap[targetExt];
+  const isSupported = fragment.formats.includes(targetType);
+
+  if (!isSupported) {
+    logger.warn({ fragmentType: fragment.mimeType, fragmentId: id, requestedExt: targetExt, supportedFormats: fragment.formats },
+      'Unsupported format conversion');
+    return res.status(415).json(createErrorResponse(415, `Cannot convert ${fragment.mimeType} to ${targetExt}`));
+  }
+
+  try {
+    let convertedData;
+    const targetType = contentTypeMap[targetExt];
+
+    if (fragment.isText || fragment.mimeType.startsWith('application/')) {
+      const text = data.toString('utf-8');
+
+      switch (targetExt) {
+        case '.html':
+          if (fragment.mimeType === 'text/markdown') {
+            convertedData = md.render(text);
+          } else {
+            convertedData = text;
+          }
+          break;
+
+        case '.json':
+          if (fragment.mimeType === 'text/csv') {
+            const lines = text.trim().split('\\n');
+            if (lines.length < 2) {
+              convertedData = JSON.stringify(JSON.parse(text));
+              break;
+            }
+            const headers = lines[0].split(',').map(heading => heading.trim());
+            const rows = lines.slice(1).map(row => {
+              const values = row.split(',').map(value => value.trim());
+              return headers.reduce((obj, header, i) => {
+                obj[header] = values[i] || '';
+                return obj;
+              }, {});
+            });
+            convertedData = JSON.stringify(rows);
+          } else {
+            convertedData = JSON.stringify(JSON.parse(text));
+          }
+          break;
+
+        case '.yaml':
+          if (fragment.mimeType === 'application/json') {
+            convertedData = yaml.dump(JSON.parse(text));
+          } else if (fragment.mimeType === 'application/yaml') {
+            const obj = yaml.load(text);
+            convertedData = yaml.dump(obj);
+          }
+          break;
+
+        case '.yml':
+          convertedData = yaml.dump(JSON.parse(text));
+          break;
+
+        case '.txt':
+          convertedData = text;
+          break;
+
+        default:
+          convertedData = text;
+      }
+
+      logger.info({ fragmentId: id, from: fragment.mimeType, to: targetType }, 'Conversion Completed');
+      return res.status(200)
+        .set('Content-Type', targetType)
+        .send(convertedData);
     }
-  }
 
-  logger.debug({ user: hashedEmail, fragmentId: id }, 'fragment data retrieved');
-  res.status(200).set("Content-type", fragment.mimeType).send(data);
+    if (fragment.mimeType.startsWith('image/')) {
+      const sharpImg = sharp(data);
+
+      switch (targetExt) {
+        case '.png': convertedData = await sharpImg.png().toBuffer(); break;
+        case '.jpg': convertedData = await sharpImg.jpeg().toBuffer(); break;
+        case '.webp': convertedData = await sharpImg.webp().toBuffer(); break;
+        case '.gif': convertedData = await sharpImg.gif().toBuffer(); break;
+        case '.avif': convertedData = await sharpImg.avif().toBuffer(); break;
+        default: convertedData = data;
+      }
+
+      logger.info({ fragmentId: id, from: fragment.mimeType, to: targetType }, 'Image converted with sharp');
+      return res.status(200)
+        .set('Content-Type', targetType)
+        .send(convertedData);
+    }
+
+  } catch (err) {
+    logger.error({ err, fragmentId: id }, 'Conversion failed');
+    return res.status(500).json(createErrorResponse(500, 'Conversion failed'));
+  }
 };
