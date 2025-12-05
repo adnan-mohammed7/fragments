@@ -84,7 +84,7 @@ module.exports = async (req, res) => {
 
         case '.json':
           if (fragment.mimeType === 'text/csv') {
-            const lines = text.trim().split('\\n');
+            const lines = text.trim().replace(/\\n/g, '\n').split('\n');
             if (lines.length < 2) {
               convertedData = JSON.stringify(JSON.parse(text));
               break;
