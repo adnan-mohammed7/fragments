@@ -68,20 +68,20 @@ The server entrypoint is `server.js`, which loads `app.js`, attaches the HTTP se
 
 Create a Markdown fragment:
 
-curl -u user@example.com:password
+`curl -u user@example.com:password
 -H "Content-Type: text/markdown"
 --data-binary "Hello Fragments!"
-http://localhost:8080/v1/fragments
+http://localhost:8080/v1/fragments`
 
 Retrieve the fragment as HTML:
 
-curl -u user@example.com:password
-http://localhost:8080/v1/fragments/FRAGMENT_ID.html
+`curl -u user@example.com:password
+http://localhost:8080/v1/fragments/FRAGMENT_ID.html`
 
 List all fragment IDs for the current user:
 
-curl -u user@example.com:password
-http://localhost:8080/v1/fragments
+`curl -u user@example.com:password
+http://localhost:8080/v1/fragments`
 
 ## Scripts
 
